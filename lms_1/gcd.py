@@ -91,3 +91,62 @@ class Conversion:
         if not self.strategy: #validate if not strategy is set
             raise ValueError("Error: No strategy set.")
         return self.strategy.convert(value)
+
+class GCDStrategy(ABC):
+    """Abstract base class for GCD calculation."""
+    @abstractmethod
+    def find_gcd(self, num1: int, num2: int) -> int:
+        pass
+
+
+class IterativeEuclideanGCD(GCDStrategy):
+    """Finds GCD using iterative Euclidean algorithm."""
+    @staticmethod
+    def find_gcd(num1: int, num2: int) -> int:
+        while num2:
+            num1, num2 = num2, num1 % num2
+        return num1
+
+
+class RecursiveEuclideanGCD(GCDStrategy):
+    """Finds GCD using recursive Euclidean algorithm."""
+    @staticmethod
+    def find_gcd(num1: int, num2: int) -> int:
+        return num1 if num2 == 0 else RecursiveEuclideanGCD.find_gcd(num2, num1 % num2)
+
+class GCD:
+    """Manages GCD strategies (Singleton)."""
+    
+    __instance = None # for singleton pattern
+
+    def __new__(cls):
+
+        if cls.__instance is None:
+            cls.__instance = super().__new__(cls)
+            cls.__instance.strategy = None
+
+        return cls.__instance
+    
+
+    def set_strategy(self, strategy: GCDStrategy):
+        """Sets the GCD strategy."""
+
+        if not isinstance(strategy, GCDStrategy): #validate only valid strategy is used
+            raise TypeError("Error: Invalid GCD strategy.")
+        
+        self.strategy = strategy
+
+
+    def find_gcd(self, num1: int, num2: int) -> int:
+        """Finds GCD using the chosen strategy."""
+
+        if not isinstance(num1, int) or not isinstance(num2, int): 
+            raise TypeError("Error: Both inputs must be integers.")
+        
+        if not self.strategy: #validate if not strategy is set
+            raise ValueError("Error: No strategy set.")
+        
+        if num1 < num2:
+            num1, num2 = num2, num1
+
+        return self.strategy.find_gcd(num1, num2)
