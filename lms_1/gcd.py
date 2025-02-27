@@ -1,9 +1,40 @@
-class NumberConversion:
+from abc import ABC, abstractmethod
+
+#interface for ConversionStrategy
+class ConversionStrategy(ABC):
+    """Abstract base class for conversion strategies."""
+    @abstractmethod
+    def convert(self, value):
+        pass
+
+class NumberToWord(ConversionStrategy):
+    """Converts numbers to words."""
+
     # Mapping of digits (0-9) to their corresponding English word representation
-    __dict_number_to_word = {
+    __dict_num_to_word = {
         0: "zero", 1: "one", 2: "two", 3: "three", 4: "four",
         5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine"
     }
+
+    @classmethod
+    def convert(cls, number: int) -> str:
+        """Converts an integer to its word representation."""
+        if not isinstance(number, int) or number < 0:      # validation of given input is in integer
+            raise TypeError("Error: Input must be a non-negative integer.")
+        
+        def parse(number_in_words: str, number :str, index :int, length: int):
+            """Recursively converts digits to words."""
+            if index >= length:     #base condition for when we parse all digit from number
+                return number_in_words
+            
+            digit = int(number[index])
+            
+            return parse(number_in_words + cls.__dict_num_to_word[digit], number, index + 1, length)  # parse next digit
+        
+        return parse("", str(number), 0, len(str(number))) # parse all digit of number recursively
+
+class WordToNumber(ConversionStrategy):
+    """Converts words to numbers."""
 
     # Mapping of English word representation to their corresponding digits (0-9)
     __dict_word_to_number = {
@@ -12,36 +43,51 @@ class NumberConversion:
     }
 
     @classmethod
-    def number_to_word(cls, number: int) -> str:
-        """
-        Converts a single-digit integer (0-9) into its corresponding English word.
+    def convert(cls, number_in_words: str) -> int:
+        """Converts a word representation of a number to an integer."""
 
-        :param number: An integer between 0 and 9
-        :return: The word representation of the number
-        :raises ValueError: If the number is not in the valid range (0-9)
-        """
-        if 0 <= number <= 9:
-            return cls.__dict_number_to_word[number]
-        else:
-            raise ValueError("Error: Not a valid number (must be between 0 and 9).")
-
-    @classmethod    
-    def word_to_number(cls,word: str) -> int:
-        """
-        Converts a english word into its corresponding single-digit integer (0-9)
-
-        :param word: word representation of the number(0-9)
-        :return: An interger between 0 and 9
-        :raise ValueError: If English word is not valid for (0-9)
-        """
-        word=word.lower()
-        if word in cls.__dict_word_to_number:
-            return cls.__dict_word_to_number[word]
-        else:
-            raise ValueError("Error: Not valid word reprenttation for digit 0-9")
+        if not isinstance(number_in_words, str):    #validation of given input is in string
+            raise TypeError("Error: Input must be a string.")
         
+        def parse(ans, current_str, index, length):
+            """Recursively parses words into a number."""
+            
+            if index >= length:     #base condition for when we parse number_int_words string
+                if current_str:     #validation for if user has enter invalid word representation of words       
+                    raise ValueError("Error: Invalid word representation.")
+                return ans
+            
+            current_str += number_in_words[index] #append curent index char to current string
+
+            if current_str in cls.__dict_word_to_number: #if current string is valid word representation convert it into integer and reset current string
+                return parse(ans + str(cls.__dict_word_to_number[current_str]), "", index + 1, length)
+            
+            return parse(ans, current_str, index + 1, length) # if current string is not valid representation then increment index
         
+        return int(parse("", "", 0, len(number_in_words))) # start parsing all words
+
+class Conversion:
+    """Manages conversion strategies (Singleton)."""
     
+    __instance = None # for singleton pattern
+
+    def __new__(cls):
+        if cls.__instance is None:
+            cls.__instance = super().__new__(cls)
+            cls.__instance.strategy = None
+
+        return cls.__instance
 
 
-print(NumberConversion.word_to_number("zero"))
+    def set_strategy(self, strategy: ConversionStrategy):
+        """Sets the conversion strategy."""
+        if not isinstance(strategy, ConversionStrategy): #validate only valid strategy is used
+            raise TypeError("Error: Invalid strategy.")
+        self.strategy = strategy
+
+
+    def convert(self, value):
+        """Converts a value using the chosen strategy."""
+        if not self.strategy: #validate if not strategy is set
+            raise ValueError("Error: No strategy set.")
+        return self.strategy.convert(value)
