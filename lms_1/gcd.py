@@ -150,3 +150,24 @@ class GCD:
             num1, num2 = num2, num1
 
         return self.strategy.find_gcd(num1, num2)
+    
+if __name__ == "__main__":
+    try:
+        number1 = input("Number 1: ").strip().lower()
+        number2 = input("Number 2: ").strip().lower()
+
+        convertor = Conversion()
+        convertor.set_strategy(WordToNumber())
+        num1 = convertor.convert(number1)
+        num2 = convertor.convert(number2)
+
+        gcd_calculator = GCD()
+        gcd_calculator.set_strategy(RecursiveEuclideanGCD())
+        ans = gcd_calculator.find_gcd(num1, num2)
+
+        convertor.set_strategy(NumberToWord())
+        ans = convertor.convert(ans)
+
+        print(f"Output: {ans}")
+    except (TypeError, ValueError) as e:
+        print(e)
