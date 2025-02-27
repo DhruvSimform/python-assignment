@@ -34,11 +34,14 @@ class NumberConversion:
         :return: An interger between 0 and 9
         :raise ValueError: If English word is not valid for (0-9)
         """
-
+        word=word.lower()
         if word in cls.__dict_word_to_number:
             return cls.__dict_word_to_number[word]
         else:
             raise ValueError("Error: Not valid word reprenttation for digit 0-9")
-    
+        
+        
     
 
+
+print(NumberConversion.word_to_number("zero"))
