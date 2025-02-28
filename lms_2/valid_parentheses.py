@@ -19,14 +19,11 @@ class GenrateParentheses:
     def  genrate_parentheses(n:int)->list:
         """Generates all combinations of valid parentheses for given n."""
 
-        # if n<0: # if n is negative number we can't genrate parentheses for that so display error
-        #     raise ValueError("Error : Invalid Input , can't able to genrate parentheses for negative number")
+        if n<0: # if n is negative number we can't genrate parentheses for that so display error
+            raise ValueError("Error : Invalid Input , can't able to genrate parentheses for negative number")
         
-        if n<=0 or n>8: # constraine error , input must be in given range
-            raise ValueError("Error : Invalid Input , Input must be in given range (1-8)")
-        
-        # if n==0:
-        #     return []
+        if n==0:
+            return []
         
         result = [] 
         GenrateParentheses._backtracking(n,"",result,0,0)
